@@ -5,6 +5,7 @@ pipeline {
       steps {
         sh './jenkins/build.sh'
         archiveArtifacts(artifacts: 'target/*.jar', fingerprint: true)
+        sh 'echo $name'
       }
     }
 
@@ -15,5 +16,8 @@ pipeline {
       }
     }
 
+  }
+  environment {
+    name = 'Chakravarthy'
   }
 }
