@@ -28,6 +28,12 @@ pipeline {
       }
     }
 
+    stage('deploy to stage or not?') {
+      steps {
+        input(message: 'deploy to stage or not? ', ok: 'Yes', submitter: 'Chakri')
+      }
+    }
+
   }
   environment {
     name = 'Chakravarthy'
