@@ -8,11 +8,14 @@ pipeline {
             node {
               label 'java8'
             }
-
           }
           steps {
             sh './jenkins/build.sh'
-            stash(name: 'Java 8', includes: 'target/**')
+          }
+          post {
+            success {
+              stash(name: 'Java 8', includes: 'target/**')
+            }
           }
         }
         stage('Build Java 7') {
@@ -20,12 +23,15 @@ pipeline {
             node {
               label 'java7'
             }
-
           }
           steps {
             sh './jenkins/build.sh'
-            archiveArtifacts 'target/*.jar'
-            stash(name: 'Java 7', includes: 'target/**')
+          }
+          post {
+            success {
+              archiveArtifacts 'target/*.jar'
+              stash(name: 'Java 7', includes: 'target/**')
+            }
           }
         }
       }
@@ -37,12 +43,15 @@ pipeline {
             node {
               label 'java8'
             }
-
           }
           steps {
             unstash 'Java 8'
             sh './jenkins/test-backend.sh'
-            junit 'target/surefire-reports/**/TEST*.xml'
+          }
+          post {
+            always {
+              junit 'target/surefire-reports/**/TEST*.xml'
+            }
           }
         }
         stage('Frontend Java 8') {
@@ -50,12 +59,15 @@ pipeline {
             node {
               label 'java8'
             }
-
           }
           steps {
             unstash 'Java 8'
             sh './jenkins/test-frontend.sh'
-            junit 'target/test-results/**/TEST*.xml'
+          }
+          post {
+            always {
+              junit 'target/test-results/**/TEST*.xml'
+            }
           }
         }
         stage('Performance Java 8') {
@@ -63,7 +75,6 @@ pipeline {
             node {
               label 'java8'
             }
-
           }
           steps {
             unstash 'Java 8'
@@ -75,7 +86,6 @@ pipeline {
             node {
               label 'java8'
             }
-
           }
           steps {
             unstash 'Java 8'
@@ -87,12 +97,15 @@ pipeline {
             node {
               label 'java7'
             }
-
           }
           steps {
             unstash 'Java 7'
             sh './jenkins/test-backend.sh'
-            junit 'target/surefire-reports/**/TEST*.xml'
+          }
+          post {
+            always {
+              junit 'target/surefire-reports/**/TEST*.xml'
+            }
           }
         }
         stage('Frontend Java 7') {
@@ -100,12 +113,15 @@ pipeline {
             node {
               label 'java7'
             }
-
           }
           steps {
             unstash 'Java 7'
             sh './jenkins/test-frontend.sh'
-            junit 'target/test-results/**/TEST*.xml'
+          }
+          post {
+            always {
+              junit 'target/test-results/**/TEST*.xml'
+            }
           }
         }
         stage('Performance Java 7') {
@@ -113,7 +129,6 @@ pipeline {
             node {
               label 'java7'
             }
-
           }
           steps {
             unstash 'Java 7'
@@ -125,7 +140,6 @@ pipeline {
             node {
               label 'java7'
             }
-
           }
           steps {
             unstash 'Java 7'
@@ -134,25 +148,25 @@ pipeline {
         }
       }
     }
-  stage('Confirm Deploy to Staging') {
+    stage('Confirm Deploy') {
       when {
         branch 'master'
       }
       steps {
-        input(message: 'Deploy to Stage', ok: 'Yes, let\'s do it!')
+        input(message: 'Okay to deploy to staging?', ok: 'Yes')
       }
     }
-    stage('Deploy to Staging') {
-      agent {
-        node {
-          label 'java8'
-        }
-      }
+    stage('Fluffy Deploy') {
       when {
         branch 'master'
       }
+      agent {
+        node {
+          label 'java7'
+        }
+      }
       steps {
-        unstash 'Buzz Java 8'
+        unstash 'Java 7'
         sh './jenkins/deploy.sh staging'
       }
     }
