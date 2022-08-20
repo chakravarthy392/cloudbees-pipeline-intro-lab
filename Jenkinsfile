@@ -134,20 +134,25 @@ pipeline {
         }
       }
     }
-    stage('Confirm Deploy') {
+  stage('Confirm Deploy to Staging') {
+      when {
+        branch 'master'
+      }
       steps {
-        input(message: 'Okay to deploy to staging?', ok: 'Yes')
+        input(message: 'Deploy to Stage', ok: 'Yes, let\'s do it!')
       }
     }
-    stage('Fluffy Deploy') {
+    stage('Deploy to Staging') {
       agent {
         node {
-          label 'java7'
+          label 'java8'
         }
-
+      }
+      when {
+        branch 'master'
       }
       steps {
-        unstash 'Java 7'
+        unstash 'Buzz Java 8'
         sh './jenkins/deploy.sh staging'
       }
     }
